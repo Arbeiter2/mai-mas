@@ -52,6 +52,10 @@ public final class MASProject {
   private static final int TEST_SPEED_UP = 16;
   private static final ArrayList<Point> transportAgentLocations = new ArrayList<Point>();
   private static final ArrayList<Point> transportAgentExtents = new ArrayList<Point>();
+
+  private static final ArrayList<Point> chargeStationLocations = new ArrayList<Point>();
+  private static final ArrayList<Point> chargeStationExtents = new ArrayList<Point>();
+  
   private MASProject() {}
 
   /**
@@ -71,9 +75,9 @@ public final class MASProject {
     View.Builder viewBuilder = View.builder()
       .with(WarehouseRenderer.builder()
         .withMargin(VEHICLE_LENGTH))
-      .with(CommRenderer.builder()
-    	.withReliabilityColors()
-    	.withMessageCount())
+//      .with(CommRenderer.builder()
+//    	.withReliabilityColors()
+//    	.withMessageCount())
       .with(AGVRenderer.builder()
         .withDifferentColorsForVehicles()
         .withVehicleOrigin()
@@ -100,14 +104,18 @@ public final class MASProject {
       .addModel(CommModel.builder())
       .build();
 
+    Iterator<Point> iter1 = chargeStationLocations.iterator();
     for (int i = 0; i < NUM_AGVS; i++) {
-      sim.register(new AGVAgent(sim.getRandomGenerator()));
+        Point loc = iter1.next();
+    	sim.register(new AGV(sim.getRandomGenerator(), loc));
+    	sim.register(new ChargeStation(sim.getRandomGenerator(), loc, 
+    			chargeStationExtents.get(i)));
     }
     
     Iterator<Point> iter = transportAgentLocations.iterator();
-    for (int i=0; i < NUM_AGENTS; i++)
+    for (int i=0; i < Math.min(NUM_AGENTS, transportAgentLocations.size()); i++)
     {
-    	TransportAgent a = new TransportAgent(sim.getRandomGenerator(), iter.next(), 
+    	PDPStation a = new PDPStation(sim.getRandomGenerator(), iter.next(), 
     			transportAgentExtents.get(i));
     	sim.register(a);
     	System.out.println(a.toString());
@@ -195,6 +203,30 @@ public final class MASProject {
         	MASProject.transportAgentExtents.add(new Point(x1-x2,0));
     }
 
+
+	static void addChargeStationLocation(Graph<LengthData> g,
+    		double x1, double y1, double x2, double y2, boolean useFirst)
+    {
+        ArrayList<Point> q = new ArrayList<Point>();
+        Point p1 = new Point(x1, y1);
+        q.add(p1);
+        Point p2 = new Point(x2, y2);
+        q.add(p2);
+        Graphs.addBiPath(g, q);
+        
+        
+        if (useFirst)
+        	chargeStationLocations.add(p1);
+        else
+        	chargeStationLocations.add(p2);
+        
+        if (useFirst)
+        	MASProject.chargeStationExtents.add(new Point(x2-x1,0));
+        else
+        	MASProject.chargeStationExtents.add(new Point(x1-x2,0));
+        
+    }
+	
     static ListenableGraph<LengthData> createGraph() {
       final Graph<LengthData> g = new TableGraph<>();
 
@@ -213,7 +245,40 @@ public final class MASProject {
           }
           Graphs.addPath(g, path);
       }
+
+      for (int i=0; i < 7; i++)
+      {
+    	  addChargeStationLocation(g, i * 8.0, 4.0, i * 8.0 + 3d, 4.0, false);
+    	  addChargeStationLocation(g, i * 8.0 + 5d, 32.0, (i + 1) * 8d, 32.0, true);
+      
+    	  addTransportAgentLocation(g, i * 8.0, 12.0, i * 8.0 + 3d, 12.0, false);
+    	  addTransportAgentLocation(g, i * 8.0 + 5d, 24.0, (i + 1) * 8d, 24.0, true);
+      
+      }
+      /*          
      
+      // block -1
+      addTransportAgentLocation(g, 0.0, 4.0, 3.0, 4.0, false);
+      addTransportAgentLocation(g, 5.0, 32.0, 8.0, 32.0, true); 
+
+      addTransportAgentLocation(g, 8.0, 4.0, 11.0, 4.0, false); 
+      addTransportAgentLocation(g, 13.0, 32.0, 16.0, 32.0, true); 
+      
+      addTransportAgentLocation(g, 16.0, 4.0, 19.0, 4.0, false);
+      addTransportAgentLocation(g, 21.0, 32.0, 24.0, 32.0, true);
+      
+      addTransportAgentLocation(g, 24.0, 4.0, 27.0, 4.0, false);
+      addTransportAgentLocation(g, 32.0, 4.0, 35.0, 4.0, false);
+      
+      addTransportAgentLocation(g, 45.0, 4.0, 48.0, 4.0, true);
+      addTransportAgentLocation(g, 29.0, 32.0, 32.0, 32.0, true);
+      
+      addTransportAgentLocation(g, 37.0, 32.0, 40.0, 32.0, true);
+      addTransportAgentLocation(g, 53.0, 32.0, 56.0, 32.0, true);
+      
+      
+
+   
       // block 0
       addTransportAgentLocation(g, 0.0, 8.0, 3.0, 8.0, false);
       addTransportAgentLocation(g, 0.0, 24.0, 3.0, 24.0, false);
@@ -235,29 +300,6 @@ public final class MASProject {
       // block 7
       addTransportAgentLocation(g, 48.0, 8.0, 51.0, 8.0, false);
       addTransportAgentLocation(g, 53.0, 24.0, 56.0, 24.0, true);
-   
-/*          
-      // block 0
-      addTransportAgentLocation(g, 0.0, 8.0, 4.0, 8.0, false);
-      addTransportAgentLocation(g, 0.0, 24.0, 4.0, 24.0, false);
-      // block 1
-      addTransportAgentLocation(g, 8.0, 12.0, 12.0, 12.0, false);
-      addTransportAgentLocation(g, 12.0, 24.0, 16.0, 24.0, true);
-      // block 2
-      addTransportAgentLocation(g, 20.0, 8.0, 24.0, 8.0, true);
-      addTransportAgentLocation(g, 20.0, 28.0, 24.0, 28.0, true);
-      // block 3
-      addTransportAgentLocation(g, 28.0, 12.0, 32.0, 12.0, true);
-      addTransportAgentLocation(g, 28.0, 24.0, 32.0, 24.0, true);
-     // block 4
-      addTransportAgentLocation(g, 32.0, 12.0, 36.0, 12.0, false);
-      addTransportAgentLocation(g, 32.0, 24.0, 36.0, 24.0, false);
-      // block 5
-      addTransportAgentLocation(g, 40.0, 28.0, 44.0, 28.0, false);
-      addTransportAgentLocation(g, 44.0, 16.0, 48.0, 16.0, true);
-      // block 7
-      addTransportAgentLocation(g, 48.0, 16.0, 52.0, 16.0, false);
-      addTransportAgentLocation(g, 52.0, 24.0, 56.0, 24.0, true);
 */ 
       
       Graphs.addPath(g, matrix.row(0).values());

@@ -16,6 +16,7 @@ public class ProtocolMessage implements MessageContents {
 		BOUND, 
 		ACCEPT_ABORT, 
 		REFUSE_ABORT,
+		FAILED,
 		
 		PARTICIPANT_IN_SCOPE,
 		PARTICIPANT_NOT_IN_SCOPE,
