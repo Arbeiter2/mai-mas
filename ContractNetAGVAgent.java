@@ -76,7 +76,7 @@ public class ContractNetAGVAgent {
 			accepts.isEmpty())
 			return;
 
-		double len, minCost = Double.MAX_VALUE;
+		double batteryUse, len, minCost = Double.MAX_VALUE;
 		ProtocolMessage chosen = null;
 		
 		// accept only the easiest one, reject the others

@@ -1,12 +1,9 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.math3.random.RandomGenerator;
-
 import com.github.rinde.rinsim.core.model.comm.CommDevice;
 import com.github.rinde.rinsim.core.model.comm.CommDeviceBuilder;
 import com.github.rinde.rinsim.core.model.comm.CommUser;
-import com.github.rinde.rinsim.core.model.comm.Message;
 import com.github.rinde.rinsim.core.model.road.CollisionGraphRoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.model.road.RoadUser;
@@ -14,10 +11,9 @@ import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
 
 public class PDPStation 
-	implements TickListener, CommUser, RoadUser, ContractNetUser {
+	implements TickListener, CommUser, RoadUser, CNPUser {
 
 	// save all agents
 	private static ArrayList<PDPStation> allTransportAgents = new ArrayList<PDPStation>();
@@ -31,7 +27,7 @@ public class PDPStation
 	private int outboxSize = -1;
 	private int transportAgentId;
 	private long timeIndex = 0;
-	ContractNetTransportAgent transportAgent;
+	CNPTransportAgent transportAgent;
 	private static final double cfpProbability = 0.001;
 	
 	/**
@@ -76,7 +72,7 @@ public class PDPStation
 		allTransportAgents.add(this);
 		
 		transportAgentId = allTransportAgents.size();
-		transportAgent = new ContractNetTransportAgent(this);
+		transportAgent = new CNPTransportAgent(this);
 	}
 
 	@Override

@@ -29,7 +29,7 @@ import com.github.rinde.rinsim.core.model.time.TimeLapse;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.common.base.Optional;
 
-class AGV implements TickListener, MovingRoadUser, CommUser, ContractNetUser {
+class AGV implements TickListener, MovingRoadUser, CommUser, CNPUser {
 	private static int loadingTime = 30;
 	private static int moveDeadAGVTime = 90;
 	private long timeIndex = 0;
@@ -43,7 +43,8 @@ class AGV implements TickListener, MovingRoadUser, CommUser, ContractNetUser {
 	
 	private Optional<Point> rerouteDestination;
 	
-	ContractNetAGVAgent deliveryAgent;
+	// handles PDP requests
+	CNPAGVAgent deliveryAgent;
 	
 	private static int AVGCounter = 0;
 	
@@ -99,7 +100,7 @@ class AGV implements TickListener, MovingRoadUser, CommUser, ContractNetUser {
 		rerouteHeading = null;
 		moveDeadAGVCountdown = 0;
 		hasPackage = false;
-		deliveryAgent = new ContractNetAGVAgent(this);
+		deliveryAgent = new CNPAGVAgent(this);
 		
 		AVGId = AVGCounter;
 		AVGCounter++;
